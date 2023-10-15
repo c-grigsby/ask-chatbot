@@ -4,7 +4,7 @@
 
 # Ask Chatbot
 
-Streamlit web app providing a Large Language Model (LLM) chatbot with a custom knowledge base 
+Streamlit web app providing a Large Language Model (LLM) chatbot with a custom knowledge base
 
 <img src="public/made-with-python.svg" height="30"/>
 <img src="public/makes-people-smile.svg" height="30"/>
@@ -55,3 +55,11 @@ Streamlit web app providing a Large Language Model (LLM) chatbot with a custom k
   ```
   $ deactivate
   ```
+
+<div align="center">
+
+|                    LLM Conversation                     |
+| :-----------------------------------------------------: |
+| <img src="./public/ask-chatbot-convo.png" width="950"/> |
+
+</div>

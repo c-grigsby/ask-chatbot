@@ -1,11 +1,12 @@
 # @packages
-import streamlit as st
 from dataclasses import dataclass
 from langchain import OpenAI
 from langchain.callbacks import get_openai_callback
 from langchain.chains import ConversationChain
 from langchain.chains.conversation.memory import ConversationSummaryMemory
 from typing import Literal
+import streamlit as st
+
 
 # Set page configuration
 st.set_page_config(page_title="Ask Chatbot")
@@ -17,7 +18,8 @@ class Message:
   """Class for keeping track of a chat messages"""
   origin: Literal["human", "AI"]
   message: str
-    
+
+
 # load_css: Gets CSS styles
 def load_css():
   with open("static/styles.css", "r") as f:
@@ -27,27 +29,27 @@ def load_css():
 
 # initialize_session_state: Creates session state for convo with the LLM
 def initialize_session_state():
-    # Define chat history in state if not present
-    if "history" not in st.session_state:
-        st.session_state.history = []
+  # Define chat history in state if not present
+  if "history" not in st.session_state:
+      st.session_state.history = []
     
-    # Define token count in state if not present  
-    if "token_count" not in st.session_state:
-          st.session_state.token_count = 0
+  # Define token count in state if not present  
+  if "token_count" not in st.session_state:
+      st.session_state.token_count = 0
     
-    # Define conversation in state if not present
-    if "conversation" not in st.session_state:
-      # Large Lanuage Model (LLM) for the chatbot
-      llm = OpenAI(
-        temperature=0,
-        openai_api_key=st.secrets["OPENAI_API_KEY"],
-        model_name="gpt-3.5-turbo-16k"
-      )
-      # Create a conversation chain
-      st.session_state.conversation = ConversationChain(
-        llm=llm,
-        memory=ConversationSummaryMemory(llm=llm),
-      )
+  # Define conversation in state if not present
+  if "conversation" not in st.session_state:
+    # Large Lanuage Model (LLM) for the chatbot
+    llm = OpenAI(
+      temperature=0,
+      openai_api_key=st.secrets["OPENAI_API_KEY"],
+      model_name="gpt-3.5-turbo-16k"
+    )
+    # Create a conversation chain
+    st.session_state.conversation = ConversationChain(
+      llm=llm,
+      memory=ConversationSummaryMemory(llm=llm),
+    )
         
 
 # on_click_callback: Manages chat history in session state
@@ -81,7 +83,6 @@ def main():
   # Setup the web page 
   st.title("Ask Chatbot 🤖")
   st.header("Let's Talk About Your Data (or Whatever) 💬")
-
 
   # Create a placeholder for the chat between the LLM & user
   chat_placeholder = st.container()
