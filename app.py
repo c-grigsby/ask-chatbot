@@ -81,7 +81,7 @@ def on_click_callback():
 
 
 def main():
-
+  
   load_css()
   initialize_session_state()
   
