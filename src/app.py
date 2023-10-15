@@ -7,16 +7,25 @@ from langchain.chains import ConversationChain
 from langchain.chains.conversation.memory import ConversationSummaryMemory
 from typing import Literal
 
+# Set page configuration
+st.set_page_config(page_title="Ask Chatbot")
+
 
 # Create a data class to contain a message and the sender
 @dataclass
 class Message:
-    """Class for keeping track of a chat message"""
-    origin: Literal["human", "ai"]
-    message: str
+  """Class for keeping track of a chat messages"""
+  origin: Literal["human", "AI"]
+  message: str
+    
+# load_css: Gets CSS styles
+def load_css():
+  with open("static/styles.css", "r") as f:
+    css = f"<style>{f.read()}</style>"
+    st.markdown(css, unsafe_allow_html=True)
 
 
-# Define and initialize session state
+# initialize_session_state: Creates session state for convo with the LLM
 def initialize_session_state():
     # Define chat history in state if not present
     if "history" not in st.session_state:
@@ -28,17 +37,17 @@ def initialize_session_state():
     
     # Define conversation in state if not present
     if "conversation" not in st.session_state:
-        # Large Lanuage Model (LLM) for the chatbot
-        llm = OpenAI(
-          temperature=0,
-          openai_api_key=st.secrets["OPENAI_API_KEY"],
-          model_name="text-davinci-003"
-        )
-        # Create a conversation chain
-        st.session_state.conversation = ConversationChain(
-            llm=llm,
-            memory=ConversationSummaryMemory(llm=llm),
-        )
+      # Large Lanuage Model (LLM) for the chatbot
+      llm = OpenAI(
+        temperature=0,
+        openai_api_key=st.secrets["OPENAI_API_KEY"],
+        model_name="gpt-3.5-turbo-16k"
+      )
+      # Create a conversation chain
+      st.session_state.conversation = ConversationChain(
+        llm=llm,
+        memory=ConversationSummaryMemory(llm=llm),
+      )
         
 
 # on_click_callback: Manages chat history in session state
@@ -63,11 +72,13 @@ def on_click_callback():
 
 
 def main():
+  # Load CSS
+  load_css()
+  
   # Initialize session state
   initialize_session_state()
   
   # Setup the web page 
-  st.set_page_config(page_title="Ask Chatbot")
   st.title("Ask Chatbot 🤖")
   st.header("Let's Talk About Your Data (or Whatever) 💬")
 
@@ -83,24 +94,33 @@ def main():
   # Display chat history within chat_placehoder
   with chat_placeholder:
     for chat in st.session_state.history:
-      st.markdown(f"From {chat.origin}: {chat.message}")
+      div = f"""
+        <div class="chat-row {'' if chat.origin == 'AI' else 'row-reverse'}">
+          <img class="chat-icon" src="app/static/{'ai_icon.png' if chat.origin == 'AI' else 'user_icon.png'}" width=32 height=32>
+          <div class="chat-bubble {'ai-bubble' if chat.origin == 'AI' else 'human-bubble'}">&#8203;{chat.message}</div>
+        </div>
+        """
+      st.markdown(div, unsafe_allow_html=True)
+    
+    for _ in range(3):
+      st.markdown("")
     
     
   # Create the user prompt within prompt_placeholder
   with prompt_placeholder:
-      st.markdown("**Chat**")
-      cols = st.columns((6, 1))
-      cols[0].text_input(
-          "Chat",
-          placeholder="Send a message",
-          label_visibility="collapsed",
-          key="human_prompt",
-      )
-      cols[1].form_submit_button(
-          "Submit", 
-          type="primary", 
-          on_click=on_click_callback, 
-      )
+    st.markdown("**Chat**")
+    cols = st.columns((6, 1))
+    cols[0].text_input(
+      "Chat",
+      placeholder="Send a message",
+      label_visibility="collapsed",
+      key="human_prompt",
+    )
+    cols[1].form_submit_button(
+      "Submit", 
+      type="primary", 
+      on_click=on_click_callback, 
+    )
 
   
   # Display the number of tokens used & conversation context within token_placeholder

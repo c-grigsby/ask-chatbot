@@ -1,1 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="198.06666564941406" height="35" viewBox="0 0 198.06666564941406 35"><rect width="73.43333435058594" height="35" fill="#ffffff"/><rect x="73.43333435058594" width="124.63333129882812" height="35" fill="#7ed321"/><text x="36.71666717529297" y="17.5" font-size="12" font-family="'Roboto', sans-serif" fill="#7ed321" text-anchor="middle" alignment-baseline="middle" letter-spacing="2">GEN AI</text><text x="135.75" y="17.5" font-size="12" font-family="'Montserrat', sans-serif" fill="#FFFFFF" text-anchor="middle" font-weight="900" alignment-baseline="middle" letter-spacing="2">COMPATIBLE</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="198.06666564941406" height="35" viewBox="0 0 198.06666564941406 35">
+  <rect width="73.43333435058594" height="35" fill="#ffffff" />
+  <rect x="73.43333435058594" width="124.63333129882812" height="35" fill="#7ed321" />
+  <text x="36.71666717529297" y="50%" font-size="12" font-family="'Roboto', sans-serif" fill="#7ed321" text-anchor="middle" alignment-baseline="middle" letter-spacing="2">
+    <tspan dy=".3em">GEN AI</tspan>
+  </text>
+  <text x="135.75" y="50%" font-size="12" font-family="'Montserrat', sans-serif" fill="#FFFFFF" text-anchor="middle" font-weight="900" alignment-baseline="middle" letter-spacing="2">
+    <tspan dy=".3em">COMPATIBLE</tspan>
+  </text>
+</svg>
