@@ -1,6 +1,6 @@
 # @packages
 from dataclasses import dataclass
-from langchain import OpenAI
+from langchain.chat_models import ChatOpenAI
 from langchain.callbacks import get_openai_callback
 from langchain.chains import ConversationChain
 from langchain.chains.conversation.memory import ConversationSummaryMemory
@@ -12,48 +12,55 @@ import streamlit as st
 st.set_page_config(page_title="Ask Chatbot")
 
 
-# Create a data class to contain a message and the sender
 @dataclass
 class Message:
-  """Class for keeping track of a chat messages"""
+  """
+  Class to contain & track messages
+  """
   origin: Literal["human", "AI"]
   message: str
 
 
-# load_css: Gets CSS styles
 def load_css():
-  with open("static/styles.css", "r") as f:
+  """
+  Gets page styles
+  """
+  with open("./static/styles.css", "r") as f:
     css = f"<style>{f.read()}</style>"
     st.markdown(css, unsafe_allow_html=True)
 
 
-# initialize_session_state: Creates session state for convo with the LLM
 def initialize_session_state():
-  # Define chat history in state if not present
+  """
+  Creates session state for convo with the LLM
+  """
+  # Define chat history 
   if "history" not in st.session_state:
       st.session_state.history = []
     
-  # Define token count in state if not present  
+  # Define a token count 
   if "token_count" not in st.session_state:
       st.session_state.token_count = 0
     
-  # Define conversation in state if not present
+  # Define a conversation chain 
   if "conversation" not in st.session_state:
     # Large Lanuage Model (LLM) for the chatbot
-    llm = OpenAI(
+    llm = ChatOpenAI(
       temperature=0,
       openai_api_key=st.secrets["OPENAI_API_KEY"],
-      model_name="gpt-3.5-turbo-16k"
+      model_name="gpt-3.5-turbo"
     )
-    # Create a conversation chain
+    # The conversation chain
     st.session_state.conversation = ConversationChain(
       llm=llm,
       memory=ConversationSummaryMemory(llm=llm),
     )
         
 
-# on_click_callback: Manages chat history in session state
 def on_click_callback():
+  """
+  Manages chat history in session state
+  """
   # Wrap code into a get OpenAI callback for the token count
   with get_openai_callback() as callback:
     # Get the prompt from session state
@@ -74,21 +81,19 @@ def on_click_callback():
 
 
 def main():
-  # Load CSS
-  load_css()
   
-  # Initialize session state
+  load_css()
   initialize_session_state()
   
-  # Setup the web page 
+  # Setup web page text 
   st.title("Ask Chatbot 🤖")
   st.header("Let's Talk About Your Data (or Whatever) 💬")
 
-  # Create a placeholder for the chat between the LLM & user
+  # Create a container for the chat between the user & LLM
   chat_placeholder = st.container()
   # Create a form for the user prompt
   prompt_placeholder = st.form("chat-form")
-  # Create a placeholder for the token count
+  # Create a empty placeholder for the token count
   token_placeholder = st.empty()
 
 
@@ -97,7 +102,7 @@ def main():
     for chat in st.session_state.history:
       div = f"""
         <div class="chat-row {'' if chat.origin == 'AI' else 'row-reverse'}">
-          <img class="chat-icon" src="app/static/{'ai_icon.png' if chat.origin == 'AI' else 'user_icon.png'}" width=32 height=32>
+          <img class="chat-icon" src="{'https://ask-chatbot.netlify.app/public/ai_icon.png' if chat.origin == 'AI' else 'https://ask-chatbot.netlify.app/public/user_icon.png'}" width=32 height=32>
           <div class="chat-bubble {'ai-bubble' if chat.origin == 'AI' else 'human-bubble'}">&#8203;{chat.message}</div>
         </div>
         """
@@ -124,13 +129,14 @@ def main():
     )
 
   
-  # Display the number of tokens used & conversation context within token_placeholder
+  # Display # of tokens used & conversation context within token_placeholder
   token_placeholder.caption(f"""
   Used {st.session_state.token_count} tokens \n
   Debug LangChain conversation: 
   {st.session_state.conversation.memory.buffer}
   """)
 
+
 if __name__ == '__main__':
-    main()
+  main()
     

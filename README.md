@@ -12,6 +12,12 @@ Streamlit web app providing a Large Language Model (LLM) chatbot with a custom k
 
 </div>
 
+## [Live Demo](https://ask-chatbot.streamlit.app/)
+
+- Deployed to Streamlit Community Cloud ☁️
+- Conversation LLM chatbot chain only
+- For ease of use and privacy, the semantic search of personal or organizational documents to create a custom knowledge base for the LLM will be available only as a local deployment feature
+
 ## Project Details
 
 - Developed with Python version 3.10
@@ -60,6 +66,6 @@ Streamlit web app providing a Large Language Model (LLM) chatbot with a custom k
 
 |                    LLM Conversation                     |
 | :-----------------------------------------------------: |
-| <img src="./public/ask-chatbot-convo.png" width="950"/> |
+| <img src="./public/ask-chatbot-convo-demo.png" width="950"/> |
 
 </div>
