@@ -16,7 +16,14 @@ Streamlit web app providing a Large Language Model (LLM) chatbot with a custom k
 
 - Deployed to Streamlit Community Cloud ☁️
 - Conversation LLM chatbot chain only
-- For ease of use and privacy, the semantic search of personal or organizational documents to create a custom knowledge base for the LLM will be available only as a local deployment feature
+- For simplicity and privacy, the semantic search of personal or organizational documents to create a custom knowledge base for the LLM is available only as a local deployment feature
+
+## Custom Knowledge Base
+
+- Include the data you wish to upload for a custom knowledge base for the LLM in the 'data' directory
+- Anticipates to load any .txt, .pdf, .csv, .docx, or .xlsx files found in the directory
+- Data is persisted within a local ChromaDB vector store
+- Future work includes web scraping
 
 ## Project Details
 
