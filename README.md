@@ -20,7 +20,8 @@ Streamlit web app providing a Large Language Model (LLM) chatbot with a custom k
 
 ## Custom Knowledge Base
 
-- Include the data you wish to upload for a custom knowledge base for the LLM in the 'data' directory
+- Extend the LLM chatbot with a custom knowledge base
+- Include the data you wish to upload to extend the LLM chatbot in the 'data' directory
 - Anticipates to load any .txt, .pdf, .csv, .docx, or .xlsx files found in the directory
 - Data is persisted within a local ChromaDB vector store
 - Future work includes web scraping
@@ -35,7 +36,7 @@ Streamlit web app providing a Large Language Model (LLM) chatbot with a custom k
 
 ## Getting Started
 
-- Create a .streamlit folder in the 'src' directory and include the contents of the [.streamlit.example](src/.streamlit.example)
+- Create a .streamlit folder in the 'src' directory and include the contents of the [.streamlit.example](.streamlit.example)
 
 - To initialize a virtual enviroment, navigate to the 'src' directory in the terminal and execute
 
@@ -54,6 +55,7 @@ Streamlit web app providing a Large Language Model (LLM) chatbot with a custom k
   ```
   $ pip install -r requirements.txt
   ```
+  Some LangChain packages may have hidden dependencies that require pip installation
 
 - Run the app
 
