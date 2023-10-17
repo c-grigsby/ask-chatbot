@@ -133,7 +133,7 @@ def create_vector_store(persist_dir):
 
 def load_css():
   """
-  Gets page styles
+  Retrieves page styles
   """
   with open("./static/styles.css", "r") as f:
     css = f"<style>{f.read()}</style>"
@@ -159,15 +159,12 @@ def initialize_session_state():
     path_to_data = "./data/"
     # Name for the local vector store
     db_name = "demo"
-    # Path to persist the vector store
+    # Directory to persist the vector store
     persist_dir = f"chroma-db_{db_name}"
-    # Option to load data or skip
+    # Load or skip data upload
     load_data = True
-    # Remove existing persist directory
+    # Remove existing vector store
     remove_existing_perist_directory = True
-
-    if not os.path.exists(persist_dir): 
-      os.makedirs(persist_dir)
     
     # Thread lock for data processing
     data_loading_lock = threading.Lock()
@@ -176,9 +173,12 @@ def initialize_session_state():
       with data_loading_lock:
         
         if os.path.exists(persist_dir) & remove_existing_perist_directory:
-          # Delete directory for a fresh store
+          # Delete files & subdirectories within the directory
           absolute_path = os.path.abspath(persist_dir)
           shutil.rmtree(absolute_path)
+        
+        if not os.path.exists(persist_dir): 
+          os.makedirs(persist_dir)
         
         # Loads text from the documents
         documents = load_directory_documents(path_to_data)
@@ -189,7 +189,7 @@ def initialize_session_state():
         # Performs vector embedding and persists results
         persist_dir = embed_and_persist_vectors(texts, persist_dir)
     
-    # Create a vector store for the knowledge base to query
+    # Create a vector store to serve the custom knowledge base
     vector_store = create_vector_store(persist_dir)
     
     # Define the Large Lanuage Model (LLM) for the chatbot
@@ -202,7 +202,7 @@ def initialize_session_state():
     # Define the conversational retrieval chain
     st.session_state.conversation = ConversationalRetrievalChain.from_llm(
       llm=llm,
-      # Define a retreiver for the custom knowledge base
+      # Define a retreiver for the knowledge base context
       retriever=vector_store.as_retriever(search_kwargs={"k": 3}),
       # Create a Memory object 
       memory = ConversationSummaryMemory(llm=llm, memory_key="chat_history", return_messages=True)
