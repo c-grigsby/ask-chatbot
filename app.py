@@ -17,10 +17,11 @@ from typing import Literal
 import os 
 import shutil
 import streamlit as st
-import threading
+# @scripts
+from helpers.web_scraping import web_scrape_site
 
 
-# Get the API key for the LLM (If required, currently using OpenAI for chatbot)
+# Get the API key for the LLM & embedding model (If required, currently using OpenAI)
 os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
 
 # Set page configuration
@@ -69,6 +70,7 @@ def load_directory_documents(path_to_data):
     # There will be multiple .csv docs per uploaded .csv
     if filename not in filenames:
       filenames.append(filename)
+    
   # Remove text before the last '/' character
   cleaned_filenames = [filename.split('/')[-1] for filename in filenames]
   # Combine the filenames into a single string for the HTML
@@ -104,17 +106,21 @@ def embed_and_persist_vectors(texts, persist_dir):
   require different resources, and have different performance characteristics.
   Ensure vector compatibility with the LLM chatbot.
   """
-  # Create a Chroma vector store 
-  vector_store = Chroma.from_documents(
-    documents=texts, 
-    embedding=OpenAIEmbeddings(),
-    persist_directory=persist_dir
-    )
+  try:
+    # Create a Chroma vector store 
+    vector_store = Chroma.from_documents(
+      documents=texts, 
+      embedding=OpenAIEmbeddings(),
+      persist_directory=persist_dir
+      )
 
-  # Persist the vector store to disk
-  vector_store.persist()
-  vector_store = None
-  
+    # Persist the vector store to disk
+    vector_store.persist()
+    vector_store = None
+    
+  except Exception as e:
+    print("An error occurred creating the vector store: ", e)
+    
   return persist_dir
 
 
@@ -131,6 +137,43 @@ def create_vector_store(persist_dir):
   return vector_store
 
 
+def load_and_process_data(path_to_data, persist_dir, remove_existing_persist_dir):
+  """
+  Executes functions to load & process data, perform vector embedding, and persist results.
+  Accepts a path for the data to load, the persist directory, 
+  and a boolean to clear the current vector store.
+  """
+  # Cleans the existing persist directory
+  if os.path.exists(persist_dir) and remove_existing_persist_dir:
+    try:
+      # Delete files & subdirectories within the directory
+      absolute_path = os.path.abspath(persist_dir)
+      shutil.rmtree(absolute_path)
+      print(f"Deleted directory: {absolute_path}")
+      
+    except Exception as e:
+      print(f"Error while deleting directory: {e}")
+      
+  if not os.path.exists(persist_dir):
+    try:  
+      os.makedirs(persist_dir)
+      
+    except Exception as e:
+      print(f"Error making directory: {e}")
+
+  # Loads text from the documents
+  documents = load_directory_documents(path_to_data)
+  print(f"Loaded {len(documents)} documents")
+  
+  # Splits data for vector embedding
+  texts = get_chunks(documents)
+  print(f"Split into {len(texts)} chunks")
+  
+  # Performs vector embedding and persists results
+  persist_dir = embed_and_persist_vectors(texts, persist_dir)
+  print(f"Persisted vectors to: {persist_dir}")
+
+
 def load_css():
   """
   Retrieves page styles
@@ -138,7 +181,17 @@ def load_css():
   with open("./static/styles.css", "r") as f:
     css = f"<style>{f.read()}</style>"
     st.markdown(css, unsafe_allow_html=True)
-  
+
+
+def init_web_scraping():
+  """
+  Executes helper functions for web scrapping the text from a website.
+  Default behavior will also search & scrape any links with an 'a' tag on the website.
+  """
+  demo_website_url = "https://www.upeccu.com/"
+  output_folder_name = "data"
+  web_scrape_site(demo_website_url, output_folder_name)
+    
 
 def initialize_session_state():
   """
@@ -151,7 +204,14 @@ def initialize_session_state():
   # Define a token count 
   if "token_count" not in st.session_state:
     st.session_state.token_count = 0
+  
+  # Define vars to ensure a block of code is run only once
+  if 'web_scraping' not in st.session_state:
+    st.session_state.web_scraping = False
     
+  if 'load_and_process' not in st.session_state:
+    st.session_state.load_and_process = False
+
   # Define a conversation chain 
   if "conversation" not in st.session_state:
     
@@ -161,48 +221,39 @@ def initialize_session_state():
     db_name = "demo"
     # Directory to persist the vector store
     persist_dir = f"chroma-db_{db_name}"
-    # Load or skip data upload
+    
+    # Web scapping functionality
+    web_scrapping_actions = True
+    if web_scrapping_actions and not st.session_state.web_scraping:
+      with st.spinner("Web scraping site..."):
+        
+        # Executes web scraping on the URL defined in the function above
+        init_web_scraping()
+        st.session_state.web_scraping = True
+    
+    # Load data functionality
     load_data = True
-    # Remove existing vector store
-    remove_existing_perist_directory = True
-    
-    # Thread lock for data processing
-    data_loading_lock = threading.Lock()
-      
-    if load_data:
-      with data_loading_lock:
+    remove_existing_persist_dir = True
+    if load_data and not st.session_state.load_and_process:
+      with st.spinner("Loading data and creating vector embeddings..."):
         
-        if os.path.exists(persist_dir) & remove_existing_perist_directory:
-          # Delete files & subdirectories within the directory
-          absolute_path = os.path.abspath(persist_dir)
-          shutil.rmtree(absolute_path)
-        
-        if not os.path.exists(persist_dir): 
-          os.makedirs(persist_dir)
-        
-        # Loads text from the documents
-        documents = load_directory_documents(path_to_data)
-    
-        # Splits data for vector embedding
-        texts = get_chunks(documents)
-    
-        # Performs vector embedding and persists results
-        persist_dir = embed_and_persist_vectors(texts, persist_dir)
+        # Loads data & creates vector embeddings
+        load_and_process_data(path_to_data, persist_dir, remove_existing_persist_dir)
+        st.session_state.load_and_process = True
     
     # Create a vector store to serve the custom knowledge base
     vector_store = create_vector_store(persist_dir)
-    
+      
     # Define the Large Lanuage Model (LLM) for the chatbot
     llm = ChatOpenAI(
       temperature=0,
-      openai_api_key=st.secrets["OPENAI_API_KEY"],
       model_name="gpt-3.5-turbo"
-    )
+      )
     
     # Define the conversational retrieval chain
     st.session_state.conversation = ConversationalRetrievalChain.from_llm(
       llm=llm,
-      # Define a retreiver for the knowledge base context
+      # Define a retriever for the knowledge base context
       retriever=vector_store.as_retriever(search_kwargs={"k": 3}),
       # Create a Memory object 
       memory = ConversationSummaryMemory(llm=llm, memory_key="chat_history", return_messages=True)

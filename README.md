@@ -23,8 +23,8 @@ Streamlit web app providing a Large Language Model (LLM) chatbot with a custom k
 - Extend the LLM chatbot with a custom knowledge base
 - Include the data you wish to upload to extend the LLM chatbot in the 'data' directory
 - Anticipates to load any .txt, .pdf, .csv, .docx, or .xlsx files found in the directory
+- Web scraping, see [code](helpers/web_scraping.py) for details
 - Data is persisted within a local ChromaDB vector store
-- Future work includes web scraping
 
 ## Project Details
 
