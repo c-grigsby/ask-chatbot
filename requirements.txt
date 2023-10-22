@@ -1,3 +1,4 @@
-langchain==0.0.314
+beautifulsoup4==4.12.2
+langchain==0.0.319
+Requests==2.31.0
 streamlit==1.27.2
-openai==0.27.8
