@@ -2,3 +2,8 @@ beautifulsoup4==4.12.2
 langchain==0.0.319
 Requests==2.31.0
 streamlit==1.27.2
+openai==0.28.1
+chromadb==0.4.14
+tiktoken==0.5.1
+pypdf==3.16.4
+docx2txt== 0.8
