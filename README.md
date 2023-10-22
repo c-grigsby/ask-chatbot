@@ -17,14 +17,15 @@ Streamlit web app providing a Large Language Model (LLM) chatbot with a custom k
 - Deployed to Streamlit Community Cloud ☁️
 - Conversation LLM chatbot chain only
 - For simplicity and privacy, the semantic search of personal or organizational documents to create a custom knowledge base for the LLM is available only as a local deployment feature
+- URL: https://ask-chatbot.streamlit.app
 
 ## Custom Knowledge Base
 
 - Extend the LLM chatbot with a custom knowledge base
 - Include the data you wish to upload to extend the LLM chatbot in the 'data' directory
 - Anticipates to load any .txt, .pdf, .csv, .docx, or .xlsx files found in the directory
+- Web scraping, see [code](helpers/web_scraping.py) for details
 - Data is persisted within a local ChromaDB vector store
-- Future work includes web scraping
 
 ## Project Details
 
@@ -33,6 +34,7 @@ Streamlit web app providing a Large Language Model (LLM) chatbot with a custom k
 - LangChain
 - OpenAI
 - ChromaDB
+- BeautifulSoup
 
 ## Getting Started
 
@@ -55,6 +57,7 @@ Streamlit web app providing a Large Language Model (LLM) chatbot with a custom k
   ```
   $ pip install -r requirements.txt
   ```
+
   Some LangChain packages may have hidden dependencies that require pip installation
 
 - Run the app
@@ -73,8 +76,8 @@ Streamlit web app providing a Large Language Model (LLM) chatbot with a custom k
 
 <div align="center">
 
-|                    LLM Conversation                     |
-| :-----------------------------------------------------: |
+|                       LLM Conversation                       |
+| :----------------------------------------------------------: |
 | <img src="./public/ask-chatbot-convo-demo.png" width="950"/> |
 
 </div>
