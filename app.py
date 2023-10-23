@@ -42,7 +42,7 @@ def load_directory_documents(path_to_data):
   Loads & extracts text data within a local directory for a custom knowledge base. 
   Accepts the path_to_data.
   Anticipates to load any .txt, .pdf, .csv, .docx, or .xlsx files in the directory. 
-  Many loader classes available, see docs: https://python.langchain.com/docs/integrations/document_loaders
+  Many loader classes available, see docs: https://python.langchain.com/docs/integrations/document_loaders/
   Retuns the text documents.
   """
   # Define loaders
