@@ -4,11 +4,7 @@ from langchain.callbacks import get_openai_callback
 from langchain.chains.conversation.memory import ConversationSummaryMemory
 from langchain.chains import ConversationalRetrievalChain
 from langchain.chat_models import ChatOpenAI
-from langchain.document_loaders import DirectoryLoader
-from langchain.document_loaders import Docx2txtLoader
-from langchain.document_loaders import PyPDFLoader
-from langchain.document_loaders import TextLoader
-from langchain.document_loaders import UnstructuredExcelLoader
+from langchain.document_loaders import DirectoryLoader, Docx2txtLoader, PyPDFLoader, TextLoader, UnstructuredExcelLoader
 from langchain.document_loaders.csv_loader import CSVLoader
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -18,7 +14,7 @@ import os
 import shutil
 import streamlit as st
 # @scripts
-from helpers.web_scraping import web_scrape_site
+from helpers import web_scrape_site
 
 # Get the API key for the LLM & embedding model (If required, currently using OpenAI)
 os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
@@ -193,7 +189,7 @@ def init_web_scraping():
     Executes helper functions for web scrapping the text from a website.
     Default behavior will also search & scrape any links with an 'a' tag on the website.
     """
-    demo_website_url = "https://www.upeccu.com/"
+    demo_website_url = "https://blog.langchain.dev/graph-based-metadata-filtering-for-improving-vector-search-in-rag-applications/"
     output_folder_name = "data"
     web_scrape_site(demo_website_url, output_folder_name)
 
@@ -252,13 +248,13 @@ def initialize_session_state():
         vector_store = create_vector_store(persist_dir)
 
         # Define the Large Lanuage Model (LLM) for the chatbot
-        llm = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo")
+        llm = ChatOpenAI(temperature=0.2, model_name="gpt-4")
 
         # Define the conversational retrieval chain
         st.session_state.conversation = ConversationalRetrievalChain.from_llm(
             llm=llm,
             # Define a retriever for the knowledge base context
-            retriever=vector_store.as_retriever(search_kwargs={"k": 3}),
+            retriever=vector_store.as_retriever(search_kwargs={"k": 5}),
             # Create a Memory object
             memory=ConversationSummaryMemory(
                 llm=llm, memory_key="chat_history", return_messages=True
