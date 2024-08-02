@@ -116,7 +116,7 @@ def web_scrape_site(website_url, folder_name):
     """
     Executes the functions above for web scrapping the text from a website.
     Accepts the website URL and the name of a folder to persist the .txt files.
-    Currently called on line: 198 of app.py
+    Currently called on line: 194 of app.py
     """
     sub_links = get_links(website_url)
     link_list = add_base_path(website_url, sub_links)
