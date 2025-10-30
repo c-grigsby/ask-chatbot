@@ -4,7 +4,13 @@ from langchain.callbacks import get_openai_callback
 from langchain.chains.conversation.memory import ConversationSummaryMemory
 from langchain.chains import ConversationalRetrievalChain
 from langchain.chat_models import ChatOpenAI
-from langchain.document_loaders import DirectoryLoader, Docx2txtLoader, PyPDFLoader, TextLoader, UnstructuredExcelLoader
+from langchain.document_loaders import (
+    DirectoryLoader,
+    Docx2txtLoader,
+    PyPDFLoader,
+    TextLoader,
+    UnstructuredExcelLoader,
+)
 from langchain.document_loaders.csv_loader import CSVLoader
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -13,6 +19,7 @@ from typing import Literal
 import os
 import shutil
 import streamlit as st
+
 # @scripts
 from helpers import web_scrape_site
 
@@ -26,19 +33,36 @@ st.set_page_config(page_title="Ask Chatbot")
 @dataclass
 class Message:
     """
-    Class to contain & track messages
+    Class to contain & track messages.
+
+    Attributes
+    ----------
+    origin : Literal["human", "AI"]
+        The origin of the message, either from human or AI.
+    message : str
+        The content of the message.
     """
+
     origin: Literal["human", "AI"]
     message: str
 
 
 def load_directory_documents(path_to_data):
     """
-    Loads & extracts text data within a local directory for a custom knowledge base.
-    Accepts the path_to_data.
+    Load & extract text data within a local directory for a custom knowledge base.
+
     Anticipates to load any .txt, .pdf, .csv, .docx, or .xlsx files in the directory.
     Many loader classes available, see docs: https://python.langchain.com/docs/integrations/document_loaders/
-    Returns the text documents.
+
+    Parameters
+    ----------
+    path_to_data : str
+        The path to the directory containing the data files.
+
+    Returns
+    -------
+    list
+        The text documents loaded from the directory.
     """
     # Define loaders
     pdf_loader = DirectoryLoader(
@@ -94,8 +118,17 @@ def load_directory_documents(path_to_data):
 
 def get_chunks(documents):
     """
-    Chunks the documents for vector embedding.
-    Accepts a list of documents & returns the split text.
+    Chunk the documents for vector embedding.
+
+    Parameters
+    ----------
+    documents : list
+        A list of documents to be chunked.
+
+    Returns
+    -------
+    list
+        The split text chunks ready for embedding.
     """
     # Chunk data for embedding
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
@@ -106,12 +139,22 @@ def get_chunks(documents):
 
 def embed_and_persist_vectors(texts, persist_dir):
     """
-    Performs vector embeddings and persists the Chorma vector store to disk.
-    Accepts the split texts & a path to store the vectors.
-    Returns the persist_directory that was used.
+    Perform vector embeddings and persist the Chroma vector store to disk.
+
     Note: Different embedding models will output different vector dimensionalities,
     require different resources, and have different performance characteristics.
-    Ensure vector compatibility with the LLM chatbot.
+
+    Parameters
+    ----------
+    texts : list
+        The split text chunks to be embedded.
+    persist_dir : str
+        The path to store the vector embeddings.
+
+    Returns
+    -------
+    str
+        The persist_directory that was used.
     """
     try:
         # Create a Chroma vector store and embed the split text
@@ -129,10 +172,20 @@ def embed_and_persist_vectors(texts, persist_dir):
 
 def create_vector_store(persist_dir):
     """
-    Loads & returns the Chroma vector store persisted on disk.
-    Accepts the path where the vectors were stored & returns the vector store.
+    Load & return the Chroma vector store persisted on disk.
+
     Note: If the knowledge base is unchanged, embedding & persisting the data first can be skipped.
     Useful when embedding large amounts of data.
+
+    Parameters
+    ----------
+    persist_dir : str
+        The path where the vectors were stored.
+
+    Returns
+    -------
+    Chroma
+        The Chroma vector store.
     """
     # Loads the vector store persisted to disk
     vector_store = Chroma(
@@ -144,9 +197,20 @@ def create_vector_store(persist_dir):
 
 def load_and_process_data(path_to_data, persist_dir, remove_existing_persist_dir):
     """
-    Executes functions to load & process data, perform vector embedding, and persist results.
-    Accepts a path for the data to load, the persist directory,
-    and a boolean to clear the current vector store.
+    Execute functions to load & process data, perform vector embedding, and persist results.
+
+    Parameters
+    ----------
+    path_to_data : str
+        The path to the directory containing the data files.
+    persist_dir : str
+        The directory to persist the vector embeddings.
+    remove_existing_persist_dir : bool
+        Whether to clear the current vector store before processing.
+
+    Returns
+    -------
+    None
     """
     # Cleans the existing persist directory
     if os.path.exists(persist_dir) and remove_existing_persist_dir:
@@ -177,7 +241,11 @@ def load_and_process_data(path_to_data, persist_dir, remove_existing_persist_dir
 
 def load_css():
     """
-    Retrieves page styles
+    Retrieve and load page styles.
+
+    Returns
+    -------
+    None
     """
     with open("./static/styles.css", "r") as f:
         css = f"<style>{f.read()}</style>"
@@ -186,8 +254,13 @@ def load_css():
 
 def init_web_scraping():
     """
-    Executes helper functions for web scrapping the text from a website.
+    Execute helper functions for web scraping the text from a website.
+
     Default behavior will also search & scrape any links with an 'a' tag on the website.
+
+    Returns
+    -------
+    None
     """
     demo_website_url = "https://blog.langchain.dev/graph-based-metadata-filtering-for-improving-vector-search-in-rag-applications/"
     output_folder_name = "data"
@@ -196,7 +269,11 @@ def init_web_scraping():
 
 def initialize_session_state():
     """
-    Creates session state for convo with the LLM
+    Create and initialize session state for conversation with the LLM.
+
+    Returns
+    -------
+    None
     """
     # Define chat history
     if "history" not in st.session_state:
@@ -264,7 +341,11 @@ def initialize_session_state():
 
 def on_click_callback():
     """
-    Manages chat history in session state
+    Manage chat history in session state.
+
+    Returns
+    -------
+    None
     """
     # Wrap code into a get OpenAI callback for the token count
     with get_openai_callback() as callback:
