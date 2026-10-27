@@ -20,47 +20,61 @@ Streamlit web app providing a Large Language Model (LLM) chatbot with a custom k
 
 ## Project Details
 
-- Developed with Python version 3.10
+- Python 3.12
 - Streamlit
 - LangChain
-- OpenAI
-- ChromaDB
+- OpenAI (GPT-5)
 
 ## Getting Started
 
-- Create a .streamlit folder in the 'src' directory and include the contents of the [.streamlit.example](src/.streamlit.example)
+**Prerequisites:** Python 3.12 (or [conda](https://conda-forge.org/download/)) and an [OpenAI API key](https://platform.openai.com/api-keys).
 
-- To initialize a virtual enviroment, navigate to the 'src' directory in the terminal and execute
+1. Clone the repo
 
-  ```
-  $ python -m venv venv
-  ```
+   ```
+   git clone https://github.com/c-grigsby/ask-chatbot.git
+   cd ask-chatbot
+   ```
 
-- Activate the virtual environment, on MacOS or Linux with
+2. Create and activate an environment with Python 3.12 (choose one)
 
-  ```
-  $ source venv/bin/activate
-  ```
+   - venv
 
-- Install dependencies
+     ```
+     python3.12 -m venv venv
+     source venv/bin/activate
+     ```
 
-  ```
-  $ pip install -r requirements.txt
-  ```
+   - conda
 
-- Run the app
+     ```
+     conda create -n ask-chatbot -c conda-forge python=3.12
+     conda activate ask-chatbot
+     ```
 
-  ```
-  $ streamlit run app.py
-  ```
+3. Install dependencies
 
-  Open your browser at http://localhost:8501
+   ```
+   pip install -r requirements.txt
+   ```
 
-- To deactivate the virtual environment
+4. Add your OpenAI API key
 
-  ```
-  $ deactivate
-  ```
+   ```
+   cp -r .streamlit.example .streamlit
+   ```
+
+   Then set `OPENAI_API_KEY` in `.streamlit/secrets.toml`. This folder is gitignored, so your key is never committed.
+
+5. Run the app
+
+   ```
+   streamlit run app.py
+   ```
+
+   Open your browser at http://localhost:8501
+
+To leave the environment, run `deactivate` (venv) or `conda deactivate` (conda).
 
 <div align="center">
 
