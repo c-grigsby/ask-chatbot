@@ -238,3 +238,29 @@
 .ai-bubble a {
   color: rgb(0, 106, 255);
 }
+
+/* Web sources cited by the LLM, listed under the response text */
+.citations {
+  margin-top: 0.8em;
+  padding-top: 0.6em;
+  border-top: 1px solid rgb(210, 214, 222);
+  font-size: 0.85em;
+}
+
+.citations-label {
+  color: rgb(90, 95, 105);
+  font-weight: 700;
+  font-size: 0.9em;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.citations ol {
+  margin: 0.35em 0 0;
+  padding-left: 1.4em;
+}
+
+.citations li {
+  margin: 0.2em 0;
+  overflow-wrap: anywhere;
+}

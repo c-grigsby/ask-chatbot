@@ -23,7 +23,7 @@ Streamlit web app providing a Large Language Model (LLM) chatbot with a custom k
 - Python 3.12
 - Streamlit
 - LangChain
-- OpenAI (GPT-5)
+- OpenAI
 
 ## Getting Started
 
@@ -37,7 +37,6 @@ Streamlit web app providing a Large Language Model (LLM) chatbot with a custom k
    ```
 
 2. Create and activate an environment with Python 3.12 (choose one)
-
    - venv
 
      ```
@@ -78,8 +77,8 @@ To leave the environment, run `deactivate` (venv) or `conda deactivate` (conda).
 
 <div align="center">
 
-|                    LLM Conversation                     |
-| :-----------------------------------------------------: |
+|                       LLM Conversation                       |
+| :----------------------------------------------------------: |
 | <img src="./public/ask-chatbot-convo-demo.png" width="950"/> |
 
 </div>

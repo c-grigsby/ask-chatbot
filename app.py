@@ -16,6 +16,9 @@ import streamlit as st
 # OpenAI model used by the chatbot
 MODEL_NAME = "gpt-6-luna"
 
+# Built-in OpenAI tools the model may call
+MODEL_TOOLS = [{"type": "web_search"}]
+
 # Chat icons
 AI_ICON_URL = "https://ask-chatbot.netlify.app/public/ai_icon.png"
 USER_ICON_URL = "https://ask-chatbot.netlify.app/public/user_icon.png"
@@ -26,12 +29,22 @@ st.set_page_config(page_title="Ask Chatbot")
 
 
 @dataclass
+class Citation:
+  """
+  Class to contain a source cited by the LLM
+  """
+  url: str
+  title: str
+
+
+@dataclass
 class Message:
   """
   Class to contain & track messages
   """
   origin: Literal["human", "AI"]
   message: str
+  citations: tuple[Citation, ...] = ()
 
 
 def render_code_block(_renderer, tokens, idx, _options, _env):
@@ -122,6 +135,62 @@ def get_reasoning_summary(llm_response):
   )
 
 
+def get_citations(llm_response):
+  """
+  Gets the web sources cited by an LLM response, in the order first cited
+
+  Parameters
+  ----------
+  llm_response : AIMessage
+    The response of the LLM
+
+  Returns
+  -------
+  tuple of Citation
+    The cited sources, empty if the response cites none
+  """
+  citations = {}
+  for block in llm_response.content_blocks:
+    for annotation in block.get("annotations", ()):
+      url = annotation.get("url", "")
+      # Only link out to the web, the URL is rendered as unescaped HTML
+      if annotation["type"] != "citation" or not url.startswith(("http://", "https://")):
+        continue
+      # Keep the first citation of a URL, a source may be cited many times
+      if url not in citations:
+        citations[url] = Citation(url, annotation.get("title") or url)
+  return tuple(citations.values())
+
+
+def citations_html(citations):
+  """
+  Builds the HTML of the sources cited by a response
+
+  Parameters
+  ----------
+  citations : tuple of Citation
+    The cited sources
+
+  Returns
+  -------
+  str
+    The HTML of the source list, empty if there are no citations
+  """
+  if not citations:
+    return ""
+  sources = "".join(
+    f'<li><a target="_blank" rel="noopener noreferrer" '
+    f'href="{escape(citation.url, quote=True)}">{escape(citation.title)}</a></li>'
+    for citation in citations
+  )
+  return (
+    '<div class="citations">'
+    '<span class="citations-label">Sources</span>'
+    f"<ol>{sources}</ol>"
+    "</div>"
+  )
+
+
 def chat_row_html(origin, content, bubble_class=""):
   """
   Builds the HTML of a chat row, an icon next to a message bubble
@@ -194,7 +263,7 @@ def initialize_session_state():
       # The Responses API returns a summary of the model's reasoning
       use_responses_api=True,
       reasoning={"effort": "medium", "summary": "auto"}
-    )
+    ).bind_tools(MODEL_TOOLS)
 
 
 def on_click_callback():
@@ -231,8 +300,10 @@ def answer_pending_prompt():
     return
   st.session_state.messages = messages + [AIMessage(llm_response.text)]
 
-  # Persist the llm_response in session state
-  st.session_state.history.append(Message("AI", llm_response.text))
+  # Persist the llm_response & the sources it cites in session state
+  st.session_state.history.append(
+    Message("AI", llm_response.text, get_citations(llm_response))
+  )
 
   # Persist the reasoning summary of the response in session state
   st.session_state.reasoning = get_reasoning_summary(llm_response)
@@ -263,7 +334,8 @@ def main():
     for chat in st.session_state.history:
       # The LLM replies in markdown, user prompts are shown as plain text
       content = (
-        markdown_to_html(chat.message) if chat.origin == "AI" else escape(chat.message)
+        markdown_to_html(chat.message) + citations_html(chat.citations)
+        if chat.origin == "AI" else escape(chat.message)
       )
       st.markdown(chat_row_html(chat.origin, content), unsafe_allow_html=True)
 
